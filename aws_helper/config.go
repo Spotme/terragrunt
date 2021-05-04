@@ -103,10 +103,13 @@ func AssumeIamRole(iamRoleArn string) (*sts.Credentials, error) {
 	}
 
 	stsClient := sts.New(sess)
+	// Use the longest possible role session duration (12 hours) to allow slow rolling deployments
+	var roleSessionDuration int64 = 43200
 
 	input := sts.AssumeRoleInput{
 		RoleArn:         aws.String(iamRoleArn),
 		RoleSessionName: aws.String(fmt.Sprintf("terragrunt-%d", time.Now().UTC().UnixNano())),
+		DurationSeconds: aws.Int64(roleSessionDuration),
 	}
 
 	output, err := stsClient.AssumeRole(&input)
